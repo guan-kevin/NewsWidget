@@ -6,16 +6,28 @@
 //
 
 import SwiftUI
+import WidgetKit
 
 struct ContentView: View {
-    var body: some View {
-        Text("Hello, world!")
-            .padding()
-    }
-}
+    @AppStorage("date", store: UserDefaults(suiteName: "group.com.kevinguan.NewsWidget")) var date: Int = 0
 
-struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView()
+    var body: some View {
+        VStack(spacing: 20) {
+            Text("Refreshed \(Int(Date().timeIntervalSince1970) - date) seconds ago")
+            Button(action: {
+                WidgetCenter.shared.reloadAllTimelines()
+            }) {
+                Text("Refresh Widget")
+            }
+
+            Button(action: {
+                guard let obj = objc_getClass("LSApplicationWorkspace") as? NSObject else { return }
+                let workspace = obj.perform(Selector(("defaultWorkspace")))?.takeUnretainedValue() as? NSObject
+                workspace?.perform(Selector(("openApplicationWithBundleID:")), with: Config.APP)
+            }) {
+                Text("Open Reeder")
+            }
+        }
+        .padding()
     }
 }
